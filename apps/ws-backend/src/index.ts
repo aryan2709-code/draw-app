@@ -1,12 +1,13 @@
 import { WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { JWT_SECRET } from "./config";
+import { JWT_SECRET } from "@repo/backend-common/config";
 const wss = new WebSocketServer({
     port : 8080
 });
 wss.on("connection" , function connection(ws , request) {
 
     const url = request.url; // ws://localhost:3000?token=123123
+    // On splitting with ? , ["ws://localhost:3000" , "token=123123"]
     if(!url)
     {
         return;
@@ -17,7 +18,11 @@ wss.on("connection" , function connection(ws , request) {
     const decoded = jwt.verify(token , JWT_SECRET);
 
     if(typeof decoded == "string")
+    {
+        ws.close();
         return;
+    }
+
 
     if(!decoded || !(decoded).userId )
     {
